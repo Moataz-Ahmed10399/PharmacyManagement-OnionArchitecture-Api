@@ -31,11 +31,13 @@ namespace Pharmacy.Application.Service
 
         public async Task<List<CategoryReadDTO>> GetAllCategories()
         {
-            var allcat = (await _CategoryRepo.GetAll()).ToListAsync();
+            //var allcat = (await _CategoryRepo.GetAll()).ToListAsync();
 
-            List<CategoryReadDTO> res = allcat.Adapt<List<CategoryReadDTO>>();
+            //List<CategoryReadDTO> res = allcat.Adapt<List<CategoryReadDTO>>();
+            //return res;
+            var allcat = (await _CategoryRepo.GetAll()).ToList(); // مش ToListAsync
+            var res = allcat.Adapt<List<CategoryReadDTO>>();
             return res;
-    
         }
 
         public Task Update(CategoryCreateDTO createCategoryDto)

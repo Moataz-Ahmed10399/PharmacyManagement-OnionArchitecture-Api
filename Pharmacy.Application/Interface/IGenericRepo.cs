@@ -10,10 +10,11 @@ namespace Pharmacy.Application.Interface
     public interface IGenericRepo<T>  where T : BaseEntity
     {
         public Task<IQueryable<T>> GetAll();
-        public Task<T> GetById();
+        public Task<T> GetById(int id);
         public Task<T> Create(T entity);
         public Task<T> Update(T entity);
         public Task<T> Delete(T entity);
+        public Task<int> SaveChangesAsync();
 
     }
 }

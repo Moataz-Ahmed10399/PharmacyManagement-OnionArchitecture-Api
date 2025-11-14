@@ -6,4 +6,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Pharmacy.Application\Pharmacy.Application.csproj" />
+    <ProjectReference Include="..\Pharmacy.Context\Pharmacy.Context.csproj" />
+    <ProjectReference Include="..\Pharmacy.Model\Pharmacy.Model.csproj" />
+  </ItemGroup>
+
 </Project>
