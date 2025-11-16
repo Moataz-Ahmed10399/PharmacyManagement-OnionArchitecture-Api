@@ -1,10 +1,15 @@
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Pharmacy.Application.Interface;
 using Pharmacy.Application.Service;
+
 using Pharmacy.Context;
 using Pharmacy.Infrastructure;
+using Pharmacy.Model;
+using System.Text;
 
 namespace PharmacyMangment.Api
 {
@@ -28,7 +33,7 @@ namespace PharmacyMangment.Api
 
             //builder.Services.AddIdentity<AppUser, IdentityRole>().AddEntityFrameworkStores<MyDbContext>();
 
-            builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+            builder.Services.AddIdentity<UserApp, IdentityRole>(options =>
             {
                 options.SignIn.RequireConfirmedEmail = builder.Configuration.GetValue<bool>("PasswordRequirements:RequireConfirmedEmail");
                 options.Password.RequireDigit = builder.Configuration.GetValue<bool>("PasswordRequirements:RequireDigit");
@@ -49,16 +54,75 @@ namespace PharmacyMangment.Api
 
 
 
-
-
-
+            Pharmacy.Application.Mappers.MapsterConfig.Configure();
 
 
 
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
 
-            builder.Services.AddSwaggerGen();
+            //builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+                {
+                    Title = "My API",
+                    Version = "v1",
+                    Description = "API with JWT Authentication"
+                });
+
+
+
+                // Add JWT Authentication to Swagger
+                options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    //Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                    Description = "Enter 'Bearer' followed by a space and then your token.\n\nExample: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                });
+
+                options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+                    {
+                        {
+                            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                            {
+                                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                                {
+                                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                                    Id = "Bearer"
+                                }
+                            },
+                            new string[] {}
+                        }
+                    });
+            });
+
+
+
+
+            //Add Authentication service
+            builder.Services.AddAuthentication(op =>
+            {
+                op.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                op.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                op.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(op =>
+            {
+                op.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = builder.Configuration["jwt:issuer"],
+                    ValidateAudience = true,
+                    ValidAudience = builder.Configuration["jwt:audiunce"],
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["jwt:key"]))
+                };
+            });
+
 
 
 

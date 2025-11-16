@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Pharmacy.Model;
 using System;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Pharmacy.Context
 {
-    public class MyDbContext : IdentityDbContext
+    public class MyDbContext : IdentityDbContext<UserApp, IdentityRole, string>
     {
         public MyDbContext(DbContextOptions<MyDbContext> options) :base(options) 
         {
@@ -144,8 +145,8 @@ namespace Pharmacy.Context
                         break;
 
                     case EntityState.Deleted:
-                        entry.State = EntityState.Modified;   // ما نعملش Delete حقيقي
-                        entry.Entity.IsDeleted = true;        // نفعّل Soft Delete
+                        entry.State = EntityState.Modified;   
+                        entry.Entity.IsDeleted = true;        
                         entry.Entity.UpdatedAt = now;
                         break;
                 }
